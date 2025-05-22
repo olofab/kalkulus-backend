@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/kalkulus}
-    username: ${JDBC_DATABASE_USERNAME:postgres}
-    password: ${JDBC_DATABASE_PASSWORD:postgres}
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:kalkulus}}
+    username: ${JDBC_DATABASE_USERNAME:${PGUSER:postgres}}
+    password: ${JDBC_DATABASE_PASSWORD:${PGPASSWORD:postgres}}
   jpa:
     hibernate:
       ddl-auto: update
