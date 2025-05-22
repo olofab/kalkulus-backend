@@ -1,0 +1,50 @@
+# Gradle
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+*.class
+*.log
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.tmp
+
+# Environment / Secrets
+.env
+*.env
+
+# Docker
+**/docker-compose.override.yml
+**/Dockerfile.*
+**/.docker/
+**/docker/
+
+# Test reports
+test-results/
+test-output/
+reports/
+
+# Misc
+*.swp
+*.swo
