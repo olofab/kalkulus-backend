@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.21"
 }
 
-group = "com.kalkulus"
+group = "com.timla"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 

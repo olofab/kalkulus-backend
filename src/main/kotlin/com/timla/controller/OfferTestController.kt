@@ -1,8 +1,8 @@
-package com.kalkulus.controller
+package com.timla.controller
 
-import com.kalkulus.model.Item
-import com.kalkulus.model.Offer
-import com.kalkulus.repository.OfferRepository
+import com.timla.model.Item
+import com.timla.model.Offer
+import com.timla.repository.OfferRepository
 import jakarta.transaction.Transactional
 import org.springframework.web.bind.annotation.*
 

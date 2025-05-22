@@ -1,6 +1,6 @@
-package com.kalkulus.repository
+package com.timla.repository
 
-import com.kalkulus.model.Offer
+import com.timla.model.Offer
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface OfferRepository : JpaRepository<Offer, Long>

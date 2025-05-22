@@ -1,4 +1,4 @@
-package com.kalkulus.model
+package com.timla.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
