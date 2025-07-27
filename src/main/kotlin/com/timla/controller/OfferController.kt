@@ -1,71 +1,70 @@
 package com.timla.controller
 
-import com.timla.dto.NewOfferRequest
+import com.timla.dto.OfferResponse
 import com.timla.dto.UpdateOfferRequest
+import com.timla.model.Item
 import com.timla.model.Offer
-import com.timla.repository.OfferRepository
-import org.springframework.http.HttpStatus
-import org.springframework.validation.annotation.Validated
+import com.timla.service.OfferService
+import com.timla.security.JwtUtil
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDateTime
-import jakarta.validation.Valid
 
 @RestController
 @RequestMapping("/api/offers")
-@Validated
 class OfferController(
-    private val offerRepository: OfferRepository
+    private val offerService: OfferService,
+    private val jwtUtil: JwtUtil
 ) {
 
+    private fun getCompanyIdFromRequest(request: HttpServletRequest): Long {
+        val token = request.getHeader("Authorization")?.removePrefix("Bearer ")
+            ?: throw RuntimeException("Token mangler")
+        return jwtUtil.getCompanyId(token)
+    }
 
     @GetMapping
-    fun getAllOffers(): List<Offer> = offerRepository.findAll()
+    fun getAllOffers(request: HttpServletRequest): List<OfferResponse> {
+        val companyId = getCompanyIdFromRequest(request)
+        return offerService.getAllOffers(companyId)
+    }
 
     @GetMapping("/{id}")
-    fun getOfferById(@PathVariable id: Long): Offer {
-        return offerRepository.findById(id).orElseThrow {
-            NoSuchElementException("Tilbud med ID $id ble ikke funnet")
-        }
+    fun getOfferById(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<OfferResponse> {
+        val companyId = getCompanyIdFromRequest(request)
+        val offer = offerService.getOfferById(id, companyId)
+        return if (offer != null) ResponseEntity.ok(offer)
+        else ResponseEntity.notFound().build()
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    fun createOffer(@RequestBody @Valid request: NewOfferRequest): Offer {
-        val offer = Offer(
-            customer = request.customer,
-            contactPerson = request.contactPerson,
-            phone = request.phone,
-            email = request.email,
-            address = request.address,
-            title = request.title,
-            description = request.description,
-            validUntil = request.validUntil,
-            status = request.status,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        )
-
-        return offerRepository.save(offer)
+    fun createOffer(@RequestBody request: Offer, httpRequest: HttpServletRequest): OfferResponse {
+        val companyId = getCompanyIdFromRequest(httpRequest)
+        return offerService.createOffer(request, companyId)
     }
 
-    @PutMapping("/{id}")
-    fun updateOffer(@PathVariable id: Long, @RequestBody @Valid updated: UpdateOfferRequest): Offer {
-        val offer = offerRepository.findById(id).orElseThrow {
-            NoSuchElementException("Tilbud med ID $id ble ikke funnet")
-        }
+   @PutMapping("/{id}")
+    fun updateOffer(
+        @PathVariable id: Long,
+        @RequestBody updateOfferRequest: UpdateOfferRequest,
+        request: HttpServletRequest
+    ): ResponseEntity<OfferResponse> {
+        val companyId = getCompanyIdFromRequest(request)
+        return offerService.updateOffer(id, updateOfferRequest, companyId)
+    }
 
-        updated.title?.let { offer.title = it }
-        updated.status?.let { offer.status = it }
-        updated.description?.let { offer.description = it }
-        updated.validUntil?.let { offer.validUntil = it }
+    @DeleteMapping("/{id}")
+    fun deleteOffer(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<Void> {
+        val companyId = getCompanyIdFromRequest(request)
+        return offerService.deleteOffer(id, companyId)
+    }
 
-        updated.customer?.let { offer.customer = it }
-        updated.contactPerson?.let { offer.contactPerson = it }
-        updated.phone?.let { offer.phone = it }
-        updated.email?.let { offer.email = it }
-        updated.address?.let { offer.address = it }
-
-        offer.updatedAt = LocalDateTime.now()
-        return offerRepository.save(offer)
+    @GetMapping("/search")
+    fun searchOffers(
+        @RequestParam query: String,
+        request: HttpServletRequest
+    ): List<OfferResponse> {
+        val companyId = getCompanyIdFromRequest(request)
+        return offerService.searchOffers(query, companyId)
     }
 }

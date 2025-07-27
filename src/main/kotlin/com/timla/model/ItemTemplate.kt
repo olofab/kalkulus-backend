@@ -1,6 +1,7 @@
 package com.timla.model
 
 import jakarta.persistence.*
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 @Entity
 data class ItemTemplate(
@@ -8,9 +9,18 @@ data class ItemTemplate(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    @Column(nullable = false)
     var name: String = "",
 
-    @Column(nullable = false)
-    var unitPrice: Double = 0.0
+    var unitPrice: Double = 0.0,
+
+    @Column(name = "company_id")
+    var companyId: Long = 0,
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "item_template_category",
+        joinColumns = [JoinColumn(name = "item_template_id")],
+        inverseJoinColumns = [JoinColumn(name = "category_id")]
+    )
+    var categories: MutableList<Category> = mutableListOf()
 )

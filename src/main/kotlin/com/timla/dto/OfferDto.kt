@@ -1,8 +1,10 @@
 package com.timla.dto
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
-data class UpdateOfferRequest(
+data class OfferDto(
+    val id: Long,
     val title: String,
     val status: String,
     val customer: String,
@@ -12,5 +14,9 @@ data class UpdateOfferRequest(
     val address: String,
     val description: String?,
     val validUntil: LocalDate?,
-    val includeVat: Boolean
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime,
+    val totalSum: Double,
+    val totalSumWithVat: Double,
+    val notes: String?
 )

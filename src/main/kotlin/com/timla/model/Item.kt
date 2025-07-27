@@ -1,19 +1,23 @@
 package com.timla.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
 data class Item(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
     var name: String = "",
-    var unitPrice: Double = 0.0,
     var quantity: Int = 1,
+    var unitPrice: Double = 0.0,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id")
-    @JsonBackReference
+    @JsonIgnore // prevent infinite recursion
     var offer: Offer? = null
-)
+) {
+    constructor() : this(0, "", 0, 0.0, null)
+}
