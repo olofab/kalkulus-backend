@@ -2,12 +2,55 @@ server:
   port: 8081
 
 spring:
+  profiles:
+    default: dev
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
   datasource:
     url: ${JDBC_DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:kalkulus}}
     username: ${JDBC_DATABASE_USERNAME:${PGUSER:postgres}}
     password: ${JDBC_DATABASE_PASSWORD:${PGPASSWORD:postgres}}
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: false
+
+  jwt:
+    secret: 0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:kalkulus}}
+    username: ${JDBC_DATABASE_USERNAME:${PGUSER:postgres}}
+    password: ${JDBC_DATABASE_PASSWORD:${PGPASSWORD:postgres}}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  jwt:
+    secret: 0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165
