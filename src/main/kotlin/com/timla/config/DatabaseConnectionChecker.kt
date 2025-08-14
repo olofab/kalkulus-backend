@@ -13,6 +13,15 @@ class DatabaseConnectionChecker : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         println("Application started successfully with production database connection!")
+        
+        // Test basic connectivity to Railway PostgreSQL
+        try {
+            Socket("postgres.railway.internal", 5432).use {
+                println("✅ Raw TCP connection to postgres.railway.internal:5432 successful!")
+            }
+        } catch (e: Exception) {
+            println("❌ Cannot connect to postgres.railway.internal:5432 - ${e.message}")
+        }
     }
 
     companion object {

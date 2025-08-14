@@ -43,11 +43,12 @@ spring:
     password: ${JDBC_DATABASE_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5
+      maximum-pool-size: 3
       minimum-idle: 1
-      connection-timeout: 30000
+      connection-timeout: 45000
       initialization-fail-timeout: 0
       leak-detection-threshold: 0
+      validation-timeout: 5000
 
   jpa:
     hibernate:
@@ -75,16 +76,18 @@ spring:
       on-profile: railway
 
   datasource:
-    # Railway DATABASE_URL is in format: postgresql://user:pass@host:port/db
-    # We need to convert it to: jdbc:postgresql://user:pass@host:port/db
-    url: ${DATABASE_URL}
+    # Use individual Railway PostgreSQL variables for more reliable connection
+    url: jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:kalkulus}}
+    username: ${DB_USER:${PGUSER:postgres}}
+    password: ${DB_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5
+      maximum-pool-size: 3
       minimum-idle: 1
-      connection-timeout: 30000
+      connection-timeout: 45000
       initialization-fail-timeout: 0
       leak-detection-threshold: 0
+      validation-timeout: 5000
 
   jpa:
     hibernate:

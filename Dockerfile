@@ -8,4 +8,4 @@ RUN chmod +x ./gradlew
 RUN ./gradlew build
 
 # Add startup delay to allow PostgreSQL service to be ready
-CMD ["/bin/bash", "-c", "sleep 10 && java -jar build/libs/kalkulus-backend-0.0.1-SNAPSHOT.jar"]
+CMD ["/bin/bash", "-c", "sleep 30 && java -jar build/libs/kalkulus-backend-0.0.1-SNAPSHOT.jar"]
