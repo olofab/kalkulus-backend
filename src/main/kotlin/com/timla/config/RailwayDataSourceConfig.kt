@@ -19,12 +19,17 @@ class RailwayDataSourceConfig {
         return object : DataSourceProperties() {
             override fun determineUrl(): String {
                 val url = super.determineUrl()
+                println("Original DATABASE_URL: $url")
+                
                 // Convert Railway's postgresql:// URL to jdbc:postgresql:// format
-                return if (url.startsWith("postgresql://")) {
+                val jdbcUrl = if (url.startsWith("postgresql://")) {
                     "jdbc:$url"
                 } else {
                     url
                 }
+                
+                println("Converted JDBC URL: $jdbcUrl")
+                return jdbcUrl
             }
         }
     }
