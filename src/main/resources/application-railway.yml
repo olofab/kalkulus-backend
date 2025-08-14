@@ -1,49 +1,35 @@
-# Railway Production Configuration
 spring:
-  application:
-    name: kalkulus-backend
-  
-  # Database configuration for Railway PostgreSQL
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:railway}}
-    username: ${PGUSER:postgres}
-    password: ${PGPASSWORD:}
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
-    # Railway automatically provides connection pooling, but we set basic configs
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-  
-  # JPA Configuration for Production
+    
   jpa:
     hibernate:
-      ddl-auto: none  # IMPORTANT: Never use 'update' or 'create-drop' in production
+      ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false   # Disable SQL logging in production
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    open-in-view: false  # Disable to prevent performance issues
-  
-  # Flyway Migration Configuration
+        
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true  # Important for existing databases
-    validate-on-migrate: true
-    out-of-order: false       # Ensure migrations run in order
-    table: flyway_schema_history  # Default table name
+    baseline-on-migrate: true
     
-  # Security Configuration
-  security:
-    cors:
-      allowed-origins: ${FRONTEND_URL:http://localhost:3000}
-      allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
-      allowed-headers: "*"
-      allow-credentials: true
+jwt:
+  secret: ${JWT_SECRET:0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165}
+
+cors:
+  allowed-origins: ${FRONTEND_URL:http://localhost:3000}
+
+logging:
+  level:
+    com.timla: INFO
+    org.springframework.security: WARN
+    org.flywaydb: INFO
 
 # Logging Configuration for Production
 logging:
