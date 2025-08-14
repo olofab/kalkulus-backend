@@ -41,6 +41,7 @@ class AuthController(
         // Opprett admin-bruker
         val user = User(
             name = req.name,
+            username = req.email, // Use email as username for now
             email = req.email,
             userType = UserType.ADMIN,
             passwordHash = passwordEncoder.encode(req.password),

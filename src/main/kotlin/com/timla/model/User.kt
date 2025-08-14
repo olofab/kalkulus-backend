@@ -8,14 +8,19 @@ data class User(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
+    @Column(name = "full_name")
     var name: String = "",
+
+    @Column(name = "username")
+    var username: String = "",
 
     @Column(nullable = false)
     var email: String = "",
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     val passwordHash: String = "",
 
+    @Transient
     var isAdmin: Boolean = false,
 
     var userType: UserType = UserType.INTERNAL,
