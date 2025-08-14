@@ -43,14 +43,11 @@ spring:
     password: ${JDBC_DATABASE_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 60000
-      initialization-fail-timeout: 60000
-      leak-detection-threshold: 60000
-      validation-timeout: 30000
-      idle-timeout: 300000
-      max-lifetime: 600000
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      initialization-fail-timeout: 0
+      leak-detection-threshold: 0
 
   jpa:
     hibernate:
@@ -78,18 +75,16 @@ spring:
       on-profile: railway
 
   datasource:
-    # Uses same DATABASE_URL approach as prod profile
+    # Railway DATABASE_URL is in format: postgresql://user:pass@host:port/db
+    # We need to convert it to: jdbc:postgresql://user:pass@host:port/db
     url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 60000
-      initialization-fail-timeout: 60000
-      leak-detection-threshold: 60000
-      validation-timeout: 30000
-      idle-timeout: 300000
-      max-lifetime: 600000
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      initialization-fail-timeout: 0
+      leak-detection-threshold: 0
 
   jpa:
     hibernate:
