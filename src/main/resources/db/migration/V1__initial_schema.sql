@@ -3,7 +3,7 @@
 
 -- Create user_type enum if it doesn't exist
 DO $$ BEGIN
-    CREATE TYPE user_type AS ENUM ('ADMIN', 'USER');
+    CREATE TYPE user_type AS ENUM ('INTERNAL', 'SUBCONTRACTOR', 'ADMIN');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     full_name VARCHAR(255),
-    user_type user_type NOT NULL DEFAULT 'USER',
+    user_type user_type NOT NULL DEFAULT 'INTERNAL',
     company_id BIGINT REFERENCES company(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -131,7 +131,9 @@ BEGIN
         UPDATE users SET user_type = 
             CASE 
                 WHEN UPPER(user_type::text) = 'ADMIN' THEN 'ADMIN'
-                ELSE 'USER'
+                WHEN UPPER(user_type::text) = 'USER' THEN 'INTERNAL'
+                WHEN UPPER(user_type::text) = 'SUBCONTRACTOR' THEN 'SUBCONTRACTOR'
+                ELSE 'INTERNAL'
             END;
         
         -- Change column type to enum
