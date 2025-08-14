@@ -23,7 +23,8 @@ class ProductionDataSourceConfig {
                 
                 // Convert Railway's postgresql:// URL to jdbc:postgresql:// format
                 val jdbcUrl = if (url.startsWith("postgresql://")) {
-                    "jdbc:$url"
+                    // Replace the protocol properly: postgresql:// -> jdbc:postgresql://
+                    url.replaceFirst("postgresql://", "jdbc:postgresql://")
                 } else {
                     url
                 }
