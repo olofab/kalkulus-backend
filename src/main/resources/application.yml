@@ -37,8 +37,8 @@ spring:
       on-profile: prod
 
   datasource:
-    # Supports both Railway's DATABASE_URL and traditional JDBC URLs
-    url: ${DATABASE_URL:${JDBC_DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:kalkulus}}}
+    # Supports both Railway's PGHOST variables and traditional JDBC URLs
+    url: ${DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:kalkulus}}
     username: ${JDBC_DATABASE_USERNAME:${PGUSER:postgres}}
     password: ${JDBC_DATABASE_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
@@ -76,10 +76,10 @@ spring:
       on-profile: railway
 
   datasource:
-    # Use individual Railway PostgreSQL variables for more reliable connection
-    url: jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:kalkulus}}
-    username: ${DB_USER:${PGUSER:postgres}}
-    password: ${DB_PASSWORD:${PGPASSWORD:postgres}}
+    # Use Railway PostgreSQL variables (PGHOST, PGPORT, etc.)
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:kalkulus}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 3
