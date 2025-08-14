@@ -27,6 +27,8 @@ spring:
     baseline-on-migrate: true
     connect-retries: 5
     connect-retries-interval: 10
+    default-schema: public
+    validate-on-migrate: false
     
 jwt:
   secret: ${JWT_SECRET:0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165}
@@ -40,7 +42,7 @@ logging:
     com.timla: INFO
     org.springframework.security: WARN
     org.hibernate: WARN
-    org.flywaydb: INFO
+    org.flywaydb: DEBUG
     com.zaxxer.hikari: DEBUG
     org.postgresql: DEBUG
   pattern:
