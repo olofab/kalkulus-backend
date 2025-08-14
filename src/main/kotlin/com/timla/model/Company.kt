@@ -10,7 +10,7 @@ data class Company(
 
     var name: String = "",
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "org_number", unique = true, nullable = false)
     var organizationNumber: String = "",
 
     var industry: String = "",
