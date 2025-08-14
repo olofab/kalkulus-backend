@@ -20,7 +20,7 @@ data class User(
     @Column(name = "password", nullable = false)
     val passwordHash: String = "",
 
-    @Transient
+    @Column(name = "is_admin")
     var isAdmin: Boolean = false,
 
     var userType: UserType = UserType.INTERNAL,
