@@ -2,29 +2,34 @@ package com.timla.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.config.annotation.CorsRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class CorsConfig {
 
     @Bean
-    fun corsConfigurer(): WebMvcConfigurer {
-        return object : WebMvcConfigurer {
-            override fun addCorsMappings(registry: CorsRegistry) {
-                registry.addMapping("/**")
-                    .allowedOrigins(
-                        "http://localhost:3000",           // Local development
-                        "https://localhost:3000",          // Local HTTPS
-                        "https://*.vercel.app",            // Vercel deployment
-                        "https://*.netlify.app",           // Netlify deployment
-                        "https://*.railway.app"            // Railway deployment
-                    )
-                    .allowedMethods("*")
-                    .allowedHeaders("*")
-                    .allowCredentials(true)
-
-            }
-        }
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        
+        // Allow specific origins and patterns
+        configuration.allowedOriginPatterns = listOf(
+            "http://localhost:*",               // Local development (any port)
+            "https://localhost:*",              // Local HTTPS (any port)
+            "https://*.vercel.app",             // Vercel deployments
+            "https://*.netlify.app",            // Netlify deployments
+            "https://*.railway.app",            // Railway deployments
+            "https://kalkulus-frontend.vercel.app"  // Specific frontend URL
+        )
+        
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+        configuration.maxAge = 3600L // Cache preflight for 1 hour
+        
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
     }
 }
