@@ -30,12 +30,8 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/auth/register-company").permitAll()
-                    .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers("/api/auth/email-check").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/health").permitAll()
-                    .requestMatchers("/api/health").permitAll()
+                    .requestMatchers("/health", "/api/health").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
