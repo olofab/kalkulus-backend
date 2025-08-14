@@ -13,13 +13,18 @@ data class Company(
     @Column(name = "org_number", unique = true, nullable = false)
     var organizationNumber: String = "",
 
+    @Transient
     var industry: String = "",
 
+    @Transient
     var hourlyRate: Double = 0.0,
 
+    @Transient
     var machineRate: Double = 0.0,
 
+    @Transient
     var fuelRate: Double = 0.0,
 
+    @Transient
     var vat: Double? = 25.0 // standard mva
 )
