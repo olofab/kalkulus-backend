@@ -13,7 +13,13 @@ class CorsConfig {
         return object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:3000") // Frontend URL
+                    .allowedOrigins(
+                        "http://localhost:3000",           // Local development
+                        "https://localhost:3000",          // Local HTTPS
+                        "https://*.vercel.app",            // Vercel deployment
+                        "https://*.netlify.app",           // Netlify deployment
+                        "https://*.railway.app"            // Railway deployment
+                    )
                     .allowedMethods("*")
                     .allowedHeaders("*")
                     .allowCredentials(true)
