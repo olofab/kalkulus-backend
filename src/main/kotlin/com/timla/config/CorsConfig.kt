@@ -21,8 +21,12 @@ class CorsConfig {
             "https://*.netlify.app",            // Netlify deployments
             "https://*.railway.app",            // Railway deployments
             "https://kalkulus-frontend.vercel.app",  // Specific frontend URL
-            "https://*.vercel.com",             // Alternative Vercel domain
-            "*"                                 // Temporary: Allow all origins for debugging
+            "https://*.vercel.com"              // Alternative Vercel domain
+        )
+        
+        // Also allow specific origins for maximum compatibility
+        configuration.allowedOrigins = listOf(
+            "https://kalkulus-frontend.vercel.app"
         )
         
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
