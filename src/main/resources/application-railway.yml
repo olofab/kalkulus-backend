@@ -5,7 +5,9 @@ spring:
   
   # Database configuration for Railway PostgreSQL
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:railway}}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:}
     driver-class-name: org.postgresql.Driver
     # Railway automatically provides connection pooling, but we set basic configs
     hikari:
@@ -19,20 +21,20 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none  # IMPORTANT: Never use 'update' or 'create-drop' in production
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false   # Disable SQL logging in production
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
     open-in-view: false  # Disable to prevent performance issues
   
   # Flyway Migration Configuration
   flyway:
     enabled: true
+    locations: classpath:db/migration
     baseline-on-migrate: true  # Important for existing databases
     validate-on-migrate: true
     out-of-order: false       # Ensure migrations run in order
-    locations: classpath:db/migration
     table: flyway_schema_history  # Default table name
     
   # Security Configuration
@@ -65,7 +67,7 @@ server:
 # Application specific configuration
 app:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165}
     expiration: 86400000  # 24 hours in milliseconds
   
 # Management endpoints (for health checks)
