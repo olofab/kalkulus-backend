@@ -8,11 +8,11 @@ import java.net.Socket
 import kotlin.system.exitProcess
 
 @Component
-@Profile("railway")
+@Profile("prod")
 class DatabaseConnectionChecker : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        println("Application started successfully with Railway database connection!")
+        println("Application started successfully with production database connection!")
     }
 
     companion object {

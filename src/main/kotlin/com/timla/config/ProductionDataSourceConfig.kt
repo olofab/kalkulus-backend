@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Profile
 import javax.sql.DataSource
 
 @Configuration
-@Profile("railway")
-class RailwayDataSourceConfig {
+@Profile("prod")
+class ProductionDataSourceConfig {
 
     @Bean
     @Primary
@@ -28,7 +28,7 @@ class RailwayDataSourceConfig {
                     url
                 }
                 
-                println("Converted JDBC URL: $jdbcUrl")
+                println("Final JDBC URL: $jdbcUrl")
                 return jdbcUrl
             }
         }
