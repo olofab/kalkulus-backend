@@ -7,6 +7,5 @@ COPY . /app
 RUN chmod +x ./gradlew
 RUN ./gradlew build
 
-# Railway doesn't need wait-for-it as it handles service dependencies
-# Railway also automatically provides DATABASE_URL when PostgreSQL is connected
-CMD ["java", "-jar", "-Dspring.profiles.active=railway", "build/libs/kalkulus-backend-0.0.1-SNAPSHOT.jar"]
+# Add startup delay to allow PostgreSQL service to be ready
+CMD ["/bin/bash", "-c", "sleep 10 && java -jar -Dspring.profiles.active=railway build/libs/kalkulus-backend-0.0.1-SNAPSHOT.jar"]
