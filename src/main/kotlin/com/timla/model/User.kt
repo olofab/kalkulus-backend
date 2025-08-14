@@ -23,6 +23,8 @@ data class User(
     @Column(name = "is_admin")
     var isAdmin: Boolean = false,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_type")
     var userType: UserType = UserType.INTERNAL,
 
    @ManyToOne(fetch = FetchType.EAGER)
