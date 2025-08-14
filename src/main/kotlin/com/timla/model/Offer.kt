@@ -14,7 +14,10 @@ data class Offer(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     var title: String = "",
-    var status: String = "draft",
+    
+    @Enumerated(EnumType.STRING)
+    var status: OfferStatus = OfferStatus.DRAFT,
+    
     var customer: String = "",
     var contactPerson: String = "",
     var phone: String = "",

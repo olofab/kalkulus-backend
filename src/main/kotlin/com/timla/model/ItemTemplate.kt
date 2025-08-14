@@ -16,7 +16,7 @@ data class ItemTemplate(
     @Column(name = "company_id")
     var companyId: Long = 0,
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "item_template_category",
         joinColumns = [JoinColumn(name = "item_template_id")],

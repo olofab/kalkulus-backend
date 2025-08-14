@@ -1,5 +1,6 @@
 package com.timla.dto
 
+import com.timla.model.OfferStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import com.timla.dto.ItemDTO
@@ -8,7 +9,7 @@ import com.timla.dto.ItemDTO
 data class OfferResponse(
     val id: Long,
     val title: String,
-    val status: String,
+    val status: OfferStatus,
     val customer: String,
     val contactPerson: String,
     val phone: String,

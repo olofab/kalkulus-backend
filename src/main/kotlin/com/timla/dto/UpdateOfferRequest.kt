@@ -1,10 +1,11 @@
 package com.timla.dto
 
+import com.timla.model.OfferStatus
 import java.time.LocalDate
 
 data class UpdateOfferRequest(
     val title: String,
-    val status: String,
+    val status: OfferStatus,
     val customer: String,
     val contactPerson: String,
     val phone: String,

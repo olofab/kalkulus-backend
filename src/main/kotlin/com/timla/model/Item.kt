@@ -14,10 +14,13 @@ data class Item(
     var quantity: Int = 1,
     var unitPrice: Double = 0.0,
 
+    @Column(name = "category_id")
+    var categoryId: Long? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id")
     @JsonIgnore // prevent infinite recursion
     var offer: Offer? = null
 ) {
-    constructor() : this(0, "", 0, 0.0, null)
+    constructor() : this(0, "", 0, 0.0, null, null)
 }

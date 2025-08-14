@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 interface CategoryRepository : JpaRepository<Category, Long> {
     fun findByCompanyId(companyId: Long): List<Category>
     fun findByIdAndCompanyId(id: Long, companyId: Long): Category?
-    fun findAllById(id: Long): List<Category>
+    fun findByIdInAndCompanyId(ids: List<Long>, companyId: Long): List<Category>
 }
 
 

@@ -1,0 +1,42 @@
+# Railway deployment ignore file
+# This reduces deployment size and time
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Development files
+docker-compose.yml
+.env
+.env.local
+
+# Build artifacts (Railway will build from source)
+build/
+target/
+*.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Development docker files (Railway uses Dockerfile)
+wait-for-it.sh
+
+# Logs
+logs/
+*.log
+
+# Test files
+src/test/
+*Test.kt
+*Tests.kt

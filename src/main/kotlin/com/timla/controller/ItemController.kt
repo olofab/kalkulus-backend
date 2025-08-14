@@ -1,12 +1,20 @@
 package com.timla.controller
 
 import com.timla.dto.ItemUpdateRequest
+import com.timla.dto.AddCustomItemRequest
+import com.timla.dto.AddCustomItemResponse
+import com.timla.dto.UpdateItemCategoryRequest
+import com.timla.dto.UpdateItemCategoryResponse
+import com.timla.dto.UpdateOfferItemRequest
+import com.timla.dto.UpdateOfferItemResponse
+import com.timla.dto.DeleteOfferItemResponse
 import com.timla.model.Item
 import com.timla.model.Offer
 import com.timla.dto.ItemDTO
 import com.timla.dto.AddItemRequest
 import com.timla.mapper.ItemMapper
 import com.timla.repository.ItemRepository
+import com.timla.repository.CategoryRepository
 import com.timla.service.ItemService
 import com.timla.repository.OfferRepository
 import com.timla.security.JwtUtil
@@ -25,6 +33,7 @@ class ItemController(
     private val itemRepository: ItemRepository,
     private val itemService: ItemService,
     private val itemTemplateRepository: ItemTemplateRepository,
+    private val categoryRepository: CategoryRepository,
     private val jwtUtil: JwtUtil
 ) {
 
@@ -76,6 +85,7 @@ class ItemController(
                 name = template.name,
                 quantity = request.quantity,
                 unitPrice = template.unitPrice,
+                categoryId = null, // Template items don't have category initially
                 offer = offer
             )
             
@@ -119,25 +129,186 @@ class ItemController(
         @PathVariable offerId: Long,
         @PathVariable itemId: Long,
         request: HttpServletRequest
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<DeleteOfferItemResponse> {
         val token = request.getHeader("Authorization")?.removePrefix("Bearer ")
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
-        val companyId = jwtUtil.getCompanyId(token)
+        return try {
+            val companyId = jwtUtil.getCompanyId(token)
 
-        val offer = offerRepository.findById(offerId).orElse(null)
-            ?: return ResponseEntity.notFound().build()
+            val offer = offerRepository.findById(offerId).orElse(null)
+                ?: return ResponseEntity.notFound().build()
 
-        if (offer.companyId != companyId) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            if (offer.companyId != companyId) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            }
+
+            val itemToRemove = offer.items.find { it.id == itemId }
+                ?: return ResponseEntity.notFound().build()
+
+            offer.items.remove(itemToRemove)
+            offerRepository.save(offer)
+
+            val response = DeleteOfferItemResponse(
+                success = true,
+                message = "Item successfully deleted from offer"
+            )
+
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            val response = DeleteOfferItemResponse(
+                success = false,
+                message = "Failed to delete item: ${e.message}"
+            )
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response)
         }
+    }
 
-        val itemToRemove = offer.items.find { it.id == itemId }
-            ?: return ResponseEntity.notFound().build()
+    // Add custom item (without template) to an offer
+    @PostMapping("/offers/{offerId}/item/custom")
+    fun addCustomItem(
+        @PathVariable offerId: Long,
+        @RequestBody request: AddCustomItemRequest,
+        requestServlet: HttpServletRequest
+    ): ResponseEntity<AddCustomItemResponse> {
+        val token = requestServlet.getHeader("Authorization")?.removePrefix("Bearer ")
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
-        offer.items.remove(itemToRemove)
-        offerRepository.save(offer) // sørg for at cascade = CascadeType.ALL er satt på items
+        return try {
+            val companyId = jwtUtil.getCompanyId(token)
+            val offer = offerRepository.findById(offerId)
+                .filter { it.companyId == companyId }
+                .orElseThrow { RuntimeException("Tilbud ikke funnet eller tilgang nektet") }
 
-        return ResponseEntity.noContent().build()
+            // Validate category if provided
+            if (request.categoryId != null) {
+                val category = categoryRepository.findByIdAndCompanyId(request.categoryId, companyId)
+                    ?: return ResponseEntity.badRequest().build()
+            }
+
+            val item = Item(
+                name = request.name,
+                quantity = request.quantity,
+                unitPrice = request.unitPrice,
+                categoryId = request.categoryId,
+                offer = offer
+            )
+            
+            val savedItem = itemRepository.save(item)
+
+            val response = AddCustomItemResponse(
+                itemId = savedItem.id,
+                name = savedItem.name,
+                unitPrice = savedItem.unitPrice,
+                quantity = savedItem.quantity
+            )
+
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+    }
+
+    // Update offer item (comprehensive update)
+    @PutMapping("/offers/{offerId}/items/{itemId}/update")
+    fun updateOfferItem(
+        @PathVariable offerId: Long,
+        @PathVariable itemId: Long,
+        @RequestBody request: UpdateOfferItemRequest,
+        requestServlet: HttpServletRequest
+    ): ResponseEntity<UpdateOfferItemResponse> {
+        val token = requestServlet.getHeader("Authorization")?.removePrefix("Bearer ")
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        return try {
+            val companyId = jwtUtil.getCompanyId(token)
+            
+            // Verify offer belongs to company
+            val offer = offerRepository.findById(offerId)
+                .filter { it.companyId == companyId }
+                .orElse(null) ?: return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+
+            // Find item and verify it belongs to the offer
+            val item = itemRepository.findById(itemId).orElse(null)
+                ?: return ResponseEntity.notFound().build()
+
+            if (item.offer?.id != offerId) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            }
+
+            // Validate category if provided
+            if (request.categoryId != null) {
+                val category = categoryRepository.findByIdAndCompanyId(request.categoryId, companyId)
+                    ?: return ResponseEntity.badRequest().build()
+            }
+
+            // Update item fields
+            item.name = request.name
+            item.quantity = request.quantity
+            item.unitPrice = request.unitPrice
+            item.categoryId = request.categoryId
+            
+            val savedItem = itemRepository.save(item)
+
+            val response = UpdateOfferItemResponse(
+                success = true,
+                itemId = savedItem.id,
+                name = savedItem.name,
+                quantity = savedItem.quantity,
+                unitPrice = savedItem.unitPrice,
+                categoryId = savedItem.categoryId
+            )
+
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
+    }
+
+    // Update item category (legacy endpoint - kept for backward compatibility)
+    @PutMapping("/offers/{offerId}/item/{itemId}")
+    fun updateItemCategory(
+        @PathVariable offerId: Long,
+        @PathVariable itemId: Long,
+        @RequestBody request: UpdateItemCategoryRequest,
+        requestServlet: HttpServletRequest
+    ): ResponseEntity<UpdateItemCategoryResponse> {
+        val token = requestServlet.getHeader("Authorization")?.removePrefix("Bearer ")
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        return try {
+            val companyId = jwtUtil.getCompanyId(token)
+            
+            // Verify offer belongs to company
+            val offer = offerRepository.findById(offerId)
+                .filter { it.companyId == companyId }
+                .orElse(null) ?: return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+
+            // Find item and verify it belongs to the offer
+            val item = itemRepository.findById(itemId).orElse(null)
+                ?: return ResponseEntity.notFound().build()
+
+            if (item.offer?.id != offerId) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            }
+
+            // Validate category belongs to company
+            val category = categoryRepository.findByIdAndCompanyId(request.categoryId, companyId)
+                ?: return ResponseEntity.badRequest().build()
+
+            // Update item category
+            item.categoryId = request.categoryId
+            itemRepository.save(item)
+
+            val response = UpdateItemCategoryResponse(
+                success = true,
+                itemId = itemId,
+                categoryId = request.categoryId
+            )
+
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+        }
     }
 }

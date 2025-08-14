@@ -1,0 +1,79 @@
+# Railway Production Configuration
+spring:
+  application:
+    name: kalkulus-backend
+  
+  # Database configuration for Railway PostgreSQL
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    # Railway automatically provides connection pooling, but we set basic configs
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # JPA Configuration for Production
+  jpa:
+    hibernate:
+      ddl-auto: none  # IMPORTANT: Never use 'update' or 'create-drop' in production
+    show-sql: false   # Disable SQL logging in production
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    open-in-view: false  # Disable to prevent performance issues
+  
+  # Flyway Migration Configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true  # Important for existing databases
+    validate-on-migrate: true
+    out-of-order: false       # Ensure migrations run in order
+    locations: classpath:db/migration
+    table: flyway_schema_history  # Default table name
+    
+  # Security Configuration
+  security:
+    cors:
+      allowed-origins: ${FRONTEND_URL:http://localhost:3000}
+      allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+# Logging Configuration for Production
+logging:
+  level:
+    com.timla: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    org.flywaydb: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Server Configuration
+server:
+  port: ${PORT:8080}  # Railway automatically sets PORT
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+# Application specific configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 86400000  # 24 hours in milliseconds
+  
+# Management endpoints (for health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

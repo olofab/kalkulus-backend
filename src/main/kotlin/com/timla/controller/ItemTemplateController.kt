@@ -2,6 +2,8 @@ package com.timla.controller
 
 import com.timla.model.ItemTemplate
 import com.timla.dto.CreateItemTemplateRequest
+import com.timla.dto.ItemTemplateResponse
+import com.timla.dto.CategoryDto
 import com.timla.repository.ItemTemplateRepository
 import com.timla.repository.CategoryRepository
 import com.timla.security.JwtUtil
@@ -18,12 +20,27 @@ class ItemTemplateController(
 ) {
 
     @GetMapping
-    fun getAllTemplates(request: HttpServletRequest): ResponseEntity<List<ItemTemplate>> {
+    fun getAllTemplates(request: HttpServletRequest): ResponseEntity<List<ItemTemplateResponse>> {
         val token = request.getHeader("Authorization")?.removePrefix("Bearer ") ?: return ResponseEntity.status(401).build()
         return try {
             val companyId = jwtUtil.getCompanyId(token)
-            val items = itemTemplateRepository.findByCompanyId(companyId)
-            ResponseEntity.ok(items)
+            val templates = itemTemplateRepository.findByCompanyId(companyId)
+            
+            val response = templates.map { template ->
+                ItemTemplateResponse(
+                    id = template.id,
+                    name = template.name,
+                    unitPrice = template.unitPrice,
+                    categories = template.categories.map { category ->
+                        CategoryDto(
+                            id = category.id,
+                            name = category.name
+                        )
+                    }
+                )
+            }
+            
+            ResponseEntity.ok(response)
         } catch (e: Exception) {
             ResponseEntity.status(400).build()
         }
@@ -33,13 +50,13 @@ class ItemTemplateController(
     fun createTemplate(
         @RequestBody request: CreateItemTemplateRequest,
         httpRequest: HttpServletRequest
-    ): ResponseEntity<ItemTemplate> {
+    ): ResponseEntity<ItemTemplateResponse> {
         val token = httpRequest.getHeader("Authorization")?.removePrefix("Bearer ")
             ?: return ResponseEntity.status(401).build()
 
         return try {
             val companyId = jwtUtil.getCompanyId(token)
-            val categories = categoryRepository.findAllById(request.categoryIds).filter { it.companyId == companyId }
+            val categories = categoryRepository.findByIdInAndCompanyId(request.categoryIds, companyId)
 
             val newItem = ItemTemplate(
                 name = request.name,
@@ -49,7 +66,20 @@ class ItemTemplateController(
             )
 
             val saved = itemTemplateRepository.save(newItem)
-            ResponseEntity.ok(saved)
+            
+            val response = ItemTemplateResponse(
+                id = saved.id,
+                name = saved.name,
+                unitPrice = saved.unitPrice,
+                categories = saved.categories.map { category ->
+                    CategoryDto(
+                        id = category.id,
+                        name = category.name
+                    )
+                }
+            )
+            
+            ResponseEntity.ok(response)
         } catch (e: Exception) {
             ResponseEntity.status(400).build()
         }
