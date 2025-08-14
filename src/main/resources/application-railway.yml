@@ -27,12 +27,6 @@ jwt:
 cors:
   allowed-origins: ${FRONTEND_URL:http://localhost:3000}
 
-logging:
-  level:
-    com.timla: INFO
-    org.springframework.security: WARN
-    org.flywaydb: INFO
-
 # Logging Configuration for Production
 logging:
   level:
