@@ -1,36 +1,25 @@
 package com.timla.config
 
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Bean
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
-import javax.sql.DataSource
+import java.net.Socket
 
 @Configuration
 @Profile("prod", "railway")
-class ProductionDataSourceConfig {
+class ProductionDataSourceConfig : ApplicationListener<ApplicationReadyEvent> {
 
-    @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource")
-    fun dataSourceProperties(): DataSourceProperties {
-        return object : DataSourceProperties() {
-            override fun determineUrl(): String {
-                val url = super.determineUrl()
-                println("Original DATABASE_URL: $url")
-                
-                // Convert Railway's postgresql:// URL to jdbc:postgresql:// format
-                val jdbcUrl = if (url.startsWith("postgresql://")) {
-                    url.replaceFirst("postgresql://", "jdbc:postgresql://")
-                } else {
-                    url
-                }
-                
-                println("Final JDBC URL: $jdbcUrl")
-                return jdbcUrl
+    override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        println("✅ Application started successfully with production database connection!")
+        
+        // Test basic connectivity to Railway PostgreSQL
+        try {
+            Socket("postgres.railway.internal", 5432).use {
+                println("✅ Raw TCP connection to postgres.railway.internal:5432 successful!")
             }
+        } catch (e: Exception) {
+            println("❌ Cannot connect to postgres.railway.internal:5432 - ${e.message}")
         }
     }
 }
