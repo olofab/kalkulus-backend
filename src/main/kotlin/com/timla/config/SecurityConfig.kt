@@ -30,12 +30,14 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
+                    // Permit CORS preflight requests
+                    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                     // Explicitly permit auth endpoints
                     .requestMatchers("/api/auth/register-company").permitAll()
                     .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
                     // Permit health endpoints
-                    .requestMatchers("/health", "/api/health").permitAll()
+                    .requestMatchers("/health", "/api/health", "/actuator/health", "/actuator/info").permitAll()
                     // All other requests need authentication
                     .anyRequest().authenticated()
             }
