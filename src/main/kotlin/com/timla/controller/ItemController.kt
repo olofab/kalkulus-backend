@@ -144,9 +144,7 @@ class ItemController(
                 "id" to savedItem.id,
                 "name" to savedItem.name,
                 "unitPrice" to savedItem.unitPrice,
-                "quantity" to savedItem.quantity,
-                "createdAt" to savedItem.createdAt,
-                "updatedAt" to savedItem.updatedAt
+                "quantity" to savedItem.quantity
             )
 
             ResponseEntity.ok(response)
