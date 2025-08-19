@@ -30,8 +30,13 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
+                    // Explicitly permit auth endpoints
+                    .requestMatchers("/api/auth/register-company").permitAll()
+                    .requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
+                    // Permit health endpoints
                     .requestMatchers("/health", "/api/health").permitAll()
+                    // All other requests need authentication
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)

@@ -20,9 +20,13 @@ class JwtFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.servletPath
-        val shouldSkip = path.startsWith("/api/auth") || path.startsWith("/health")
-        println("Request path: $path – will be filtered: ${!shouldSkip}")
-
+        val method = request.method
+        val shouldSkip = path.startsWith("/api/auth") || 
+                        path.startsWith("/health") ||
+                        path == "/api/auth/register-company" ||
+                        path == "/api/auth/login"
+        
+        println("JwtFilter - Path: $path, Method: $method, Will be filtered: ${!shouldSkip}")
         return shouldSkip
     }
 
@@ -31,6 +35,8 @@ class JwtFilter(
         response: HttpServletResponse,
         chain: FilterChain
     ) {
+        println("JwtFilter.doFilterInternal called for path: ${request.servletPath}")
+        
         val authHeader = request.getHeader("Authorization")
         var token: String? = null
 
