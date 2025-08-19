@@ -99,6 +99,63 @@ class ItemController(
         }
     }
 
+    // Add item template to offer (frontend expected endpoint)
+    @PostMapping("/offers/{offerId}/item/template")
+    fun addTemplateToOffer(
+        @PathVariable offerId: Long,
+        @RequestBody request: AddItemRequest,
+        requestServlet: HttpServletRequest
+    ): ResponseEntity<Any> {
+        val token = requestServlet.getHeader("Authorization")?.removePrefix("Bearer ")
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        return try {
+            val companyId = jwtUtil.getCompanyId(token)
+            
+            // Validate input
+            if (request.quantity <= 0) {
+                return ResponseEntity.badRequest().body(mapOf("error" to "Invalid quantity"))
+            }
+            
+            // Find and validate offer access
+            val offer = offerRepository.findById(offerId)
+                .filter { it.companyId == companyId }
+                .orElse(null) ?: return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(mapOf("error" to "Access denied"))
+
+            // Find template and validate it belongs to the same company
+            val template = itemTemplateRepository.findByIdAndCompanyId(request.templateId, companyId)
+                ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("error" to "Template not found"))
+
+            // Create new item from template
+            val item = Item(
+                name = template.name,
+                quantity = request.quantity,
+                unitPrice = template.unitPrice,
+                categoryId = null, // Template items don't have category initially
+                offer = offer
+            )
+            
+            val savedItem = itemRepository.save(item)
+
+            // Return the item data that frontend expects
+            val response = mapOf(
+                "id" to savedItem.id,
+                "name" to savedItem.name,
+                "unitPrice" to savedItem.unitPrice,
+                "quantity" to savedItem.quantity,
+                "createdAt" to savedItem.createdAt,
+                "updatedAt" to savedItem.updatedAt
+            )
+
+            ResponseEntity.ok(response)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("error" to "Server error: ${e.message}"))
+        }
+    }
+
      @PutMapping("/offers/{offerId}/items/{itemId}")
     fun updateItemQuantity(
         @PathVariable itemId: Long,
