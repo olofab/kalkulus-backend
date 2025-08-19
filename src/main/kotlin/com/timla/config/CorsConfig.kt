@@ -29,8 +29,27 @@ class CorsConfig {
             "https://kalkulus-frontend.vercel.app"
         )
         
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-        configuration.allowedHeaders = listOf("*")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+        
+        // Be explicit about headers
+        configuration.allowedHeaders = listOf(
+            "Authorization",
+            "Content-Type", 
+            "Accept",
+            "Origin",
+            "X-Requested-With",
+            "Cache-Control",
+            "Accept-Encoding",
+            "Accept-Language"
+        )
+        
+        // Expose headers that frontend might need
+        configuration.exposedHeaders = listOf(
+            "Authorization",
+            "Content-Type",
+            "X-Total-Count"
+        )
+        
         configuration.allowCredentials = true
         configuration.maxAge = 3600L // Cache preflight for 1 hour
         

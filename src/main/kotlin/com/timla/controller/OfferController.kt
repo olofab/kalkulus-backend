@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/api/offers")
+@CrossOrigin(origins = ["https://kalkulus-frontend.vercel.app", "https://*.vercel.app"], allowCredentials = "true")
 class OfferController(
     private val offerService: OfferService,
     private val jwtUtil: JwtUtil,
