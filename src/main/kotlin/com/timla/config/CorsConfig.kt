@@ -19,9 +19,7 @@ class CorsConfig {
             "https://localhost:*",              // Local HTTPS (any port)
             "https://*.vercel.app",             // Vercel deployments
             "https://*.netlify.app",            // Netlify deployments
-            "https://*.railway.app",            // Railway deployments
-            "https://kalkulus-frontend.vercel.app",  // Specific frontend URL
-            "https://*.vercel.com"              // Alternative Vercel domain
+            "https://*.railway.app"             // Railway deployments
         )
         
         // Also allow specific origins for maximum compatibility
@@ -32,16 +30,7 @@ class CorsConfig {
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
         
         // Be explicit about headers
-        configuration.allowedHeaders = listOf(
-            "Authorization",
-            "Content-Type", 
-            "Accept",
-            "Origin",
-            "X-Requested-With",
-            "Cache-Control",
-            "Accept-Encoding",
-            "Accept-Language"
-        )
+        configuration.allowedHeaders = listOf("*")  // Allow all headers for simplicity
         
         // Expose headers that frontend might need
         configuration.exposedHeaders = listOf(

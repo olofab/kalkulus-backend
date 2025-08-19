@@ -30,15 +30,19 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    // Permit CORS preflight requests
+                    // === PUBLIC ENDPOINTS (ingen token påkrevet) ===
+                    
+                    // CORS preflight requests
                     .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                    // Explicitly permit auth endpoints
-                    .requestMatchers("/api/auth/register-company").permitAll()
-                    .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers("/api/auth/**").permitAll()
-                    // Permit health endpoints
+                    
+                    // Health endpoints
                     .requestMatchers("/health", "/api/health", "/actuator/health", "/actuator/info").permitAll()
-                    // All other requests need authentication
+                    
+                    // Authentication endpoints (ALLE /auth endepunkter er public)
+                    .requestMatchers("/api/auth/**").permitAll()
+                    
+                    // === PROTECTED ENDPOINTS (token påkrevet) ===
+                    // Alle andre endepunkter krever autentisering
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)

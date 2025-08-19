@@ -21,10 +21,18 @@ class JwtFilter(
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.servletPath
         val method = request.method
-        val shouldSkip = path.startsWith("/api/auth") || 
-                        path.startsWith("/health") ||
-                        path == "/api/auth/register-company" ||
-                        path == "/api/auth/login"
+        
+        // Lista over public endepunkter som ikke trenger JWT token
+        val publicPaths = listOf(
+            "/health",
+            "/api/health",
+            "/actuator/health",
+            "/actuator/info"
+        )
+        
+        val shouldSkip = path.startsWith("/api/auth") ||  // Alle auth endepunkter er public
+                        publicPaths.any { path.startsWith(it) } || // Health endepunkter
+                        method == "OPTIONS"  // CORS preflight requests
         
         println("JwtFilter - Path: $path, Method: $method, Will be filtered: ${!shouldSkip}")
         return shouldSkip

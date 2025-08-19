@@ -14,7 +14,17 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = ["*"]) // Temporary: Allow all origins for auth endpoints
+@CrossOrigin(
+    origins = [
+        "https://kalkulus-frontend.vercel.app",
+        "https://*.vercel.app", 
+        "http://localhost:*",
+        "https://localhost:*"
+    ],
+    allowCredentials = "true",
+    allowedHeaders = ["*"],
+    methods = [RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS]
+)
 class AuthController(
     private val userRepo: UserRepository,
     private val companyRepo: CompanyRepository,
