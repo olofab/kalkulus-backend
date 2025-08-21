@@ -26,6 +26,23 @@ spring:
   flyway:
     enabled: false
 
+  # Email configuration for development
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:your-email@gmail.com}
+    password: ${SMTP_PASSWORD:your-app-password}
+    from: ${SMTP_FROM:${SMTP_USERNAME:noreply@kalkulus.no}}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   jwt:
     secret: 0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165
 
@@ -107,9 +124,30 @@ spring:
     default-schema: public
     validate-on-migrate: false
 
+  # Email configuration for railway/production
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    from: ${SMTP_FROM:${SMTP_USERNAME:noreply@kalkulus.no}}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
 # Global configuration for prod profile
 jwt:
   secret: ${JWT_SECRET:0d7d52d65f10a246d92b56dea7e705a7ede33c850448cc5ddfa083706dbfc165}
+
+app:
+  company:
+    name: ${COMPANY_NAME:Kalkulus}
 
 cors:
   allowed-origins: ${FRONTEND_URL:${CORS_ALLOWED_ORIGINS:https://your-frontend.com}}

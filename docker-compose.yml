@@ -19,6 +19,13 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       PORT: 8081
+      # SMTP configuration
+      SMTP_HOST: ${SMTP_HOST:-smtp.domeneshop.no}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-timla2}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-Noreply123!}
+      SMTP_FROM: ${SMTP_FROM:-noreply@timla.no}
+      COMPANY_NAME: ${COMPANY_NAME:-Timla}
     ports:
       - "8081:8081"
 

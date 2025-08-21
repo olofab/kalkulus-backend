@@ -5,6 +5,7 @@ import com.timla.model.Item
 import com.timla.model.Offer
 import com.timla.model.OfferStatus
 import com.timla.service.OfferService
+import com.timla.service.EmailService
 import com.timla.security.JwtUtil
 import com.timla.repository.OfferRepository
 import jakarta.servlet.http.HttpServletRequest
@@ -25,7 +26,8 @@ import java.time.format.DateTimeFormatter
 class OfferController(
     private val offerService: OfferService,
     private val jwtUtil: JwtUtil,
-    private val offerRepository: OfferRepository
+    private val offerRepository: OfferRepository,
+    private val emailService: EmailService
 ) {
 
     private fun getCompanyIdFromRequest(request: HttpServletRequest): Long {
@@ -305,5 +307,61 @@ class OfferController(
         }
         
         return content.toByteArray()
+    }
+
+    // Send offer PDF by email
+    @PostMapping("/{offerId}/email")
+    fun sendOfferByEmail(
+        @PathVariable offerId: Long,
+        @RequestBody @Valid request: SendOfferEmailRequest,
+        httpRequest: HttpServletRequest
+    ): ResponseEntity<*> {
+        return try {
+            val companyId = getCompanyIdFromRequest(httpRequest)
+            
+            // Find and verify offer belongs to company
+            val offer = offerRepository.findById(offerId).orElse(null)
+                ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ErrorResponse("OFFER_NOT_FOUND", "Tilbud med ID $offerId ble ikke funnet"))
+
+            if (offer.companyId != companyId) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ErrorResponse("ACCESS_DENIED", "Du har ikke tilgang til dette tilbudet"))
+            }
+
+            // Validate offer has required data
+            if (offer.items.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ErrorResponse("INSUFFICIENT_DATA", "Tilbudet må inneholde minst én vare for å sende e-post"))
+            }
+
+            // Generate PDF content
+            val pdfContent = generatePdfContent(offer)
+
+            // Send email with PDF attachment
+            emailService.sendOfferEmail(
+                offer = offer,
+                pdfContent = pdfContent,
+                recipientEmail = request.email,
+                customSubject = request.subject,
+                customMessage = request.message
+            )
+
+            val response = SendOfferEmailResponse(
+                success = true,
+                message = "Tilbudet ble sendt til ${request.email}",
+                emailSentTo = request.email
+            )
+
+            ResponseEntity.ok(response)
+
+        } catch (e: Exception) {
+            val response = SendOfferEmailResponse(
+                success = false,
+                message = "Kunne ikke sende e-post: ${e.message}"
+            )
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response)
+        }
     }
 }
